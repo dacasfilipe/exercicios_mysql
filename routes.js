@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-//const Task = require('./model/Task');
+const Task = require('./model/Task');
 //precisa adicionar este import
 const sequelize = require('./sequelize');
 
@@ -43,7 +43,9 @@ router.get('/tasks/:id', async (req, res) => {
 
 //POST Cria uma tarefa
 router.post('/tasks', async (req, res) => {
-    sequelize.query(`INSERT INTO Tasks (description) VALUES (${req.body.description})`)
+    sequelize.query(`INSERT INTO Tasks (description, createdAt, updatedAt) VALUES (?, ?, ?)`, 
+        { replacements: [req.body.description, new Date(), new Date()] }
+    )
     .then(([results, metadata]) => {
         res.status(201).json({
             sucess: true,
