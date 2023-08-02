@@ -1,18 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const Task = require('./model/Task');
-//precisa adicionar este import
 const sequelize = require('./sequelize');
 
 //GET Retorna tarefas com paginação e ordenação
 router.get('/tasks', async (req, res) => {
-    const {page = 1 , limit = 10} = req.query;
-    sequelize.query(`SELECT * FROM Tasks ORDER BY updatedAt DESC LIMIT ${limit} OFFSET ${(page - 1) * limit}`)
+    const { page = 1, limit = 10 } = req.query;
+    sequelize.query(`SELECT * FROM Tasks ORDER BY updatedAt DESC LIMIT ? OFFSET ?`,
+        { replacements: [parseInt(limit), (page - 1) * parseInt(limit)] }
+    )
     .then(([results, metadata]) => {
-        res.json(results)
+        res.json(results);
     }).catch((error) => {
         res.status(500).json({
-            sucess: false,
+            success: false,
             message: error.message,
         });
     });
@@ -20,22 +21,22 @@ router.get('/tasks', async (req, res) => {
 
 //GET Consulta uma tarefa pelo ID
 router.get('/tasks/:id', async (req, res) => {
-    sequelize.query(`SELECT * FROM Tasks WHERE id = ${req.params.id}`)
+    sequelize.query(`SELECT * FROM Tasks WHERE id = ?`, { replacements: [req.params.id] })
     .then(([results, metadata]) => {
-        if(results.length === 0){
+        if (results.length === 0) {
             res.status(404).json({
-                sucess: false,
-                message:"tarefa não encontrada",
+                success: false,
+                message: "tarefa não encontrada",
             });
-        }else{
+        } else {
             res.json({
-                sucess: true,
+                success: true,
                 task: results[0],
             });
         }
     }).catch((error) => {
         res.status(500).json({
-            sucess: false,
+            success: false,
             message: error.message,
         });
     });
@@ -43,17 +44,17 @@ router.get('/tasks/:id', async (req, res) => {
 
 //POST Cria uma tarefa
 router.post('/tasks', async (req, res) => {
-    sequelize.query(`INSERT INTO Tasks (description, createdAt, updatedAt) VALUES (?, ?, ?)`, 
+    sequelize.query(`INSERT INTO Tasks (description, createdAt, updatedAt) VALUES (?, ?, ?)`,
         { replacements: [req.body.description, new Date(), new Date()] }
     )
     .then(([results, metadata]) => {
         res.status(201).json({
-            sucess: true,
+            success: true,
             message: "Tarefa criada com sucesso",
         });
     }).catch((error) => {
         res.status(500).json({
-            sucess: false,
+            success: false,
             message: error.message,
         });
     });
@@ -61,22 +62,24 @@ router.post('/tasks', async (req, res) => {
 
 //PUT Atualiza uma tarefa pelo ID
 router.put('/tasks/:id', async (req, res) => {
-    sequelize.query(`UPDATE Tasks SET description = ${req.body.description} WHERE id = ${req.params.id}`)
+    sequelize.query(`UPDATE Tasks SET description = ? WHERE id = ?`,
+        { replacements: [req.body.description, req.params.id] }
+    )
     .then(([results, metadata]) => {
-        if(metadata.affectedRows === 0){
+        if (metadata.affectedRows === 0) {
             res.status(404).json({
-                sucess: false,
-                message:"tarefa não encontrada",
+                success: false,
+                message: "tarefa não encontrada",
             });
-        }else{
+        } else {
             res.json({
-                sucess: true,
+                success: true,
                 message: "Tarefa atualizada com sucesso",
             });
         }
     }).catch((error) => {
         res.status(500).json({
-            sucess: false,
+            success: false,
             message: error.message,
         });
     });
@@ -84,26 +87,25 @@ router.put('/tasks/:id', async (req, res) => {
 
 //DELETE Deleta uma tarefa pelo ID
 router.delete('/tasks/:id', async (req, res) => {
-    sequelize.query(`DELETE FROM Tasks WHERE id = ${req.params.id}`)
+    sequelize.query(`DELETE FROM Tasks WHERE id = ?`, { replacements: [req.params.id] })
     .then(([results, metadata]) => {
-        if(metadata.affectedRows === 0){
+        if (metadata.affectedRows === 0) {
             res.status(404).json({
-                sucess: false,
-                message:"tarefa não encontrada",
+                success: false,
+                message: "tarefa não encontrada",
             });
-        }else{
+        } else {
             res.json({
-                sucess: true,
+                success: true,
                 message: "Tarefa deletada com sucesso",
             });
         }
     }).catch((error) => {
         res.status(500).json({
-            sucess: false,
+            success: false,
             message: error.message,
         });
     });
 });
-
 
 module.exports = router;
