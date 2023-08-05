@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const Task = require('./model/Task');
 const sequelize = require('./sequelize');
-
+const Carro = require('./model/Carro');
+const Cliente = require('./model/Cliente');
+const Inventario = require('./model/Inventario');
+const Pedido = require('./model/Pedido');
+sequelize.sync();  
 //GET Retorna tarefas com paginação e ordenação
 router.get('/tasks', async (req, res) => {
     const { page = 1, limit = 10 } = req.query;

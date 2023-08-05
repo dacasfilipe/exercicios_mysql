@@ -1,14 +1,14 @@
 const db = require("../sequelize");
-const Sequelize = require("sequelize");
+const sequelize = require("sequelize");
 
 const Task = db.define("task", {
     id: {
-        type: Sequelize.INTEGER,
+        type: sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
     description: {
-        type: Sequelize.STRING,
+        type: sequelize.STRING,
         allowNull: false,
     },
 });
